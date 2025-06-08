@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-
+import jwt from 'jsonwebtoken'
 const adminSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -17,11 +17,27 @@ const adminSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin'],
         default: 'admin'
     }
 });
 
+
+
+adminSchema.methods.generateAccessToken = function () {
+    return jwt.sign(
+        {
+            id: this._id,
+        },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRY
+        }
+    )
+}
+
 const Admin = mongoose.model('Admin', adminSchema);
+
+
+
 
 export default Admin;
