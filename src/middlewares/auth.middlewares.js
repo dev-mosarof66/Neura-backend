@@ -13,7 +13,8 @@ const verifyJWT = async (req, res, next) => {
             return res.json({
                 message: "Login session expired",
                 success: false,
-                
+                user: null
+
             })
 
         }

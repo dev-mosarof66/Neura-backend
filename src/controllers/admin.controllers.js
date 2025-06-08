@@ -48,7 +48,7 @@ export const login = asyncHandler(async (req, res) => {
 
 
         res.status(200).json({
-            success: true, message: 'Login successful', admin: {
+            success: true, message: 'Admin login successful', user: {
                 username: admin.username,
                 email: admin.email,
                 id: admin._id,

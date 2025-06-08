@@ -30,7 +30,7 @@ export const signup = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'email already in use.');
   }
 
-  const user = new User({ fullname:fullName, email, password });
+  const user = new User({ fullname: fullName, email, password });
   await user.save();
 
   res.status(201).json({ message: 'User created successfully', user });
@@ -59,7 +59,12 @@ export const login = asyncHandler(async (req, res) => {
     validateBeforeSave: false
   })
 
-  res.status(200).json({ message: 'Login successful', user });
+  res.status(200).json({
+    message: 'Login successful', user: {
+      fullname: user.fullname,
+      email: user.email,
+    }
+  });
 });
 
 export const logout = asyncHandler(async (req, res) => {
@@ -70,7 +75,7 @@ export const logout = asyncHandler(async (req, res) => {
 export const getProfile = asyncHandler(async (req, res) => {
 
 
-  
+
   const userId = req.user.id;
 
   const user = await User.findById(userId).select('-password');
