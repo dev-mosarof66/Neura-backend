@@ -77,7 +77,6 @@ export const logout = asyncHandler(async (req, res) => {
 export const getProfile = asyncHandler(async (req, res) => {
 
 
-
   const userId = req.user.id;
 
   const user = await User.findById(userId).select('-password');
