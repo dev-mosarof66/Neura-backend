@@ -4,6 +4,8 @@ import { ApiError } from '../utils/ApiError.js'
 
 export const signup = asyncHandler(async (req, res) => {
   const { fullName, email, password, confirmPassword } = req.body;
+  console.log(fullName, email, password, confirmPassword);
+
 
   if (!fullName) {
     throw new ApiError('Fullname is required', 400);
