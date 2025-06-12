@@ -18,7 +18,19 @@ const adminSchema = new mongoose.Schema({
     role: {
         type: String,
         default: 'admin'
-    }
+    },
+    subscirber: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Subscriber'
+        }
+    ],
+    blogs:[
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Blog'
+        }
+    ]
 });
 
 

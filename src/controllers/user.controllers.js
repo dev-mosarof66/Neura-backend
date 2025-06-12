@@ -1,6 +1,9 @@
 import User from '../models/user.models.js';
+import Admin from '../models/admin.models.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js'
+import Subscriber from '../models/subsciber.models.js';
+import sendMail from '../utils/message.js';
 
 export const signup = asyncHandler(async (req, res) => {
   const { fullName, email, password, confirmPassword } = req.body;
@@ -113,3 +116,113 @@ export const deleteProfile = asyncHandler(async (req, res) => {
 
   res.status(200).json({ message: 'User deleted successfully' });
 });
+
+export const Subscribe = asyncHandler(async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      throw new ApiError('Email is required')
+    }
+
+    const userId = req.user.id;
+
+
+
+    if (!email) {
+      throw new ApiError(404, 'Email must be there.')
+    }
+
+
+    if (!userId) {
+      throw new ApiError('User is not authenticated')
+    }
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    const subscriber = new Subscriber({
+      fullname: user.fullname,
+      email,
+    })
+
+    if (!subscriber) {
+      throw new ApiError(404, 'Error while creating new subscriber')
+    }
+
+
+    console.log(user?.isSubscriber);
+
+    if (user?.isSubscriber) {
+      return res.status(402).json({
+        message: "You have already subscribed"
+      })
+    }
+
+
+    user.isSubscriber = true;
+    user.subscriberId = subscriber?._id
+
+    user.save({
+      validateBeforeSave: false
+    })
+
+    const admin = await Admin.findById(process.env.ADMIN_ID);
+
+
+
+    admin.subscirber.push(subscriber._id)
+
+    admin.save({
+      validateBeforeSave: false
+    })
+
+    subscriber.save({
+      validateBeforeSave: false
+    })
+    res.status(201).json({
+      message: 'your subscription done.',
+      user: {
+        subscriber
+      }
+    })
+  } catch (error) {
+    console.log(`Internal server error`, error);
+    throw new ApiError(error)
+
+  }
+})
+
+
+
+
+
+export const sendMessage = asyncHandler(async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    const mail = sendMail('mdmosarofhossain8207@gmail.com', 'Md Mosarof Hossain')
+
+    if (!mail) {
+      throw new ApiError("Error while sending mail")
+    }
+
+
+    res.status(201).json({
+      message: 'message sent successfully.'
+    })
+  } catch (error) {
+    console.log(`Internal server error`, error);
+
+  }
+})
+
+
+

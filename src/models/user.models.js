@@ -34,6 +34,14 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "",
         trim: true,
+    },
+    isSubscriber: {
+        type: Boolean,
+        default: false,
+    },
+    subscriberId: {
+        type: String,
+        default: ""
     }
 }, { timestamps: true })
 

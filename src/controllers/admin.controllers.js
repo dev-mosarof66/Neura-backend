@@ -108,5 +108,53 @@ export const deleteProfile = asyncHandler(async (req, res) => {
 
 
 export const createBlog = asyncHandler(async (req, res) => {
-    const { title, content, image, fileName } = req.body;
+    try {
+        console.log(req.user);
+        const adminId = req.user?.id;
+        const { title, content } = req.body;
+        console.log(req.body);
+
+        if (!title) {
+            throw new ApiError(400, 'Title is required');
+        }
+        if (!content) {
+            throw new ApiError(400, 'Content is required');
+        }
+
+        const blog = await Blog.create({
+            title,
+            content,
+        })
+
+        if (!blog) {
+            throw new ApiError(404, 'Blog not created');
+        }
+
+
+        //search admin
+
+        const admin = await Admin.findById(adminId);
+
+        if (!admin) {
+            throw new ApiError(404, 'Admin not found');
+        }
+
+        admin.blogs.push(blog?._id)
+
+        res.status(201).json({ message: 'Blog created successfully', blog });
+    } catch (error) {
+        console.log('Internal Server error', error);
+        throw new ApiError('Something went wrong')
+
+    }
+
+
+})
+
+export const getBlog = asyncHandler(async (req, res) => {
+    try {
+        const blog = await Blog.findById(req.params.id);
+    } catch (error) {
+
+    }
 })

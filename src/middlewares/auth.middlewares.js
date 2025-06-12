@@ -5,7 +5,6 @@ const verifyJWT = async (req, res, next) => {
     try {
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
 
-        console.log(token);
 
 
         if (!token) {
@@ -22,7 +21,6 @@ const verifyJWT = async (req, res, next) => {
         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
         req.user = decodedToken;
-        console.log(req.user);
 
 
         next();
