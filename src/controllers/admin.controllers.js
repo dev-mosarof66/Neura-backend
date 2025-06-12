@@ -18,46 +18,43 @@ export const signup = asyncHandler(async (req, res) => {
 });
 
 export const login = asyncHandler(async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        console.log('admin login data : ', username, password);
+
+    const { username, password } = req.body;
+    console.log('admin login data : ', username, password);
 
 
-        if (!username) {
-            throw new ApiError(400, 'Username is required');
-        }
-        if (!password) {
-            throw new ApiError(400, 'Password is required');
-        }
-
-        const admin = await Admin.findOne({ username });
-        if (!admin) {
-            throw new ApiError(401, 'Invalid credentials');
-        }
-
-        const isMatch = password === admin.password ? true : false;
-        if (!isMatch) {
-            throw new ApiError(401, 'Invalid credentials');
-        }
-
-        const accessToken = admin.generateAccessToken();
-        console.log(accessToken);
-
-
-        res.cookie('accessToken', accessToken)
-
-
-        res.status(200).json({
-            success: true, message: 'Admin login successful', user: {
-                username: admin.username,
-                email: admin.email,
-                id: admin._id,
-            }
-        });
-    } catch (error) {
-        console.log(`error in admin login controller : ${error}`);
-
+    if (!username) {
+        throw new ApiError(400, 'Username is required');
     }
+    if (!password) {
+        throw new ApiError(400, 'Password is required');
+    }
+
+    const admin = await Admin.findOne({ username });
+    if (!admin) {
+        throw new ApiError(401, 'Invalid credentials');
+    }
+
+    const isMatch = admin.isPasswordCorrect(password);
+    if (!isMatch) {
+        throw new ApiError(401, 'Invalid credentials');
+    }
+
+    const accessToken = admin.generateAccessToken();
+    console.log(accessToken);
+
+
+    res.cookie('accessToken', accessToken)
+
+
+    res.status(200).json({
+        success: true, message: 'Admin login successful', user: {
+            username: admin.username,
+            email: admin.email,
+            id: admin._id,
+        }
+    });
+
 });
 
 export const logout = asyncHandler(async (req, res) => {
@@ -112,7 +109,7 @@ export const createBlog = asyncHandler(async (req, res) => {
         console.log(req.user);
         const adminId = req.user?.id;
         const { title, content } = req.body;
-        console.log(req.body);
+        // console.log(req.body);
 
         if (!title) {
             throw new ApiError(400, 'Title is required');
@@ -139,7 +136,14 @@ export const createBlog = asyncHandler(async (req, res) => {
             throw new ApiError(404, 'Admin not found');
         }
 
+        console.log(admin);
+
+
         admin.blogs.push(blog?._id)
+
+        admin.save({
+            validateBeforeSave: false
+        })
 
         res.status(201).json({ message: 'Blog created successfully', blog });
     } catch (error) {
@@ -152,9 +156,33 @@ export const createBlog = asyncHandler(async (req, res) => {
 })
 
 export const getBlog = asyncHandler(async (req, res) => {
-    try {
-        const blog = await Blog.findById(req.params.id);
-    } catch (error) {
 
+    const adminId = req.user?.id;
+
+    const admin = await Admin.findById(adminId);
+
+    if (!admin) {
+        throw new ApiError(404, 'Admin not found');
     }
+
+    const blogId = admin.blogs
+
+    const blogs = []
+
+    for (let itr = 0; itr < blogId.length; itr++) {
+        const blog = await Blog.findById(blogId[itr])
+        if (blog) {
+            blogs.push(blog)
+        }
+    }
+
+    console.log(blogs);
+
+    res.status(201).json({
+        message: "all blogs of admin",
+        blogs
+    })
+
+
+
 })

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { signup, login, logout, getProfile, updateProfile, deleteProfile, createBlog } from '../controllers/admin.controllers.js'
+import { signup, login, logout, getProfile, updateProfile, deleteProfile, createBlog, getBlog } from '../controllers/admin.controllers.js'
 import auth from '../middlewares/auth.middlewares.js'
 import upload from "../middlewares/multer.middleares.js";
 
@@ -14,5 +14,7 @@ router.route('/get-profile').get(auth, getProfile)
 router.route('/delete-profile').post(auth, deleteProfile)
 
 router.route('/create-blog').post(auth, upload.single('thumbnail'), createBlog)
+
+router.route("/get-blogs").get(auth,getBlog)
 
 export default router; 
